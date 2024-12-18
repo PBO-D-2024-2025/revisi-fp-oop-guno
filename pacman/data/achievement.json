@@ -1,1 +1,42 @@
-{}
+import pygame
+
+class AchievementHandler:
+    def __init__(self):
+        self.achievements = {
+            "first_death": False,
+            "first_win": False,
+            "win_superhard": False,
+            "win_hard": False
+        }
+        self.unlocked = []  # Track unlocked achievements for notifications
+
+    def unlock_achievement(self, achievement_name):
+        if achievement_name in self.achievements and not self.achievements[achievement_name]:
+            self.achievements[achievement_name] = True
+            self.unlocked.append(achievement_name)
+            print(f"Achievement unlocked: {achievement_name}")
+
+    def check_first_death(self, life):
+        if life == 0 and not self.achievements["first_death"]:
+            self.unlock_achievement("first_death")
+
+    def check_first_win(self, game_state):
+        if game_state == Game_State.WIN and not self.achievements["first_win"]:
+            self.unlock_achievement("first_win")
+
+    def check_win_hard(self, difficulty, game_state):
+        if difficulty == "hard" and game_state == Game_State.WIN and not self.achievements["win_hard"]:
+            self.unlock_achievement("win_hard")
+
+    def check_win_superhard(self, difficulty, game_state):
+        if difficulty == "superhard" and game_state == Game_State.WIN and not self.achievements["win_superhard"]:
+            self.unlock_achievement("win_superhard")
+
+    def display_achievements(self, screen):
+        # Display unlocked achievements on the game screen
+        font = pygame.font.Font(None, 36)
+        y_offset = 10
+        for achievement in self.unlocked:
+            text = font.render(f"Unlocked: {achievement}", True, (255, 255, 0))
+            screen.blit(text, (10, y_offset))
+            y_offset += 40
