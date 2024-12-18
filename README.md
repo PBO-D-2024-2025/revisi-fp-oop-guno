@@ -805,7 +805,7 @@ if __name__ == "__main__":
 5. **Kendala 4**: Pembuatan User Interface di Pygame tidak mudah
    - Solusi: Belum Selesai
 6. **Kendala 4**: Pembuatan Kode untuk behavior ghost yang sulit
-   - Solusi: Mengurangi tipe ghost yang akan diimplementasikan
+   - Solusi: Mengurangi tipe ghost yang akan diimplementasikan serta menyederhanakan behavior ghost untuk memudahkan implementasi  
 
 ## 8. Kesimpulan dan Pembelajaran
 
