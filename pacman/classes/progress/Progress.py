@@ -123,21 +123,27 @@ class Scoreboard(Load_Database,Save_Database):
     
 class Achievement(Load_Database,Save_Database):
     def __init__(self):
-        self.LOCAL_DATA={}
-        self.DATA_PATH=os.path.join(Dir_Path.get_base_path(),'..','..','data','achievement.json')
+        self.LOCAL_DATA = {}
+        self.DATA_PATH = os.path.join(Dir_Path.get_base_path(), '..', '..', 'data', 'achievement.json')
 
-    def unlock_achievement(self, achievement_key):
-        if achievement_key in self.LOCAL_DATA:
-            self.LOCAL_DATA[achievement_key]['unlocked'] = True
-            print(f"Achievement unlocked: {achievement_key}")
+    def register_achievement(self, username, achievement_key):
+        if username not in self.LOCAL_DATA:
+            self.LOCAL_DATA[username] = []
+        if achievement_key not in self.LOCAL_DATA[username]:
+            self.LOCAL_DATA[username].append(achievement_key)
+            print(f"Achievement '{achievement_key}' unlocked for {username}")
 
-    def is_achievement_unlocked(self, achievement_key):
-        return self.LOCAL_DATA.get(achievement_key, {}).get('unlocked', False)
+    def get_user_achievements(self, username):
+        return self.LOCAL_DATA.get(username, [])
 
-    def register_achievement(self, achievement_key, description):
-        if achievement_key not in self.LOCAL_DATA:
-            self.LOCAL_DATA[achievement_key] = {'description': description, 'unlocked': False}
-            print(f"Achievement registered: {achievement_key}")
+    def has_achievement(self, username, achievement_key):
+        return achievement_key in self.LOCAL_DATA.get(username, [])
 
-    def get_all_achievements(self):
-        return self.LOCAL_DATA
+# Example achievements to be managed
+ACHIEVEMENTS = [
+    "first_death",
+    "first_win",
+    "win_superhard",
+    "win_hard"
+]
+
