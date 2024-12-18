@@ -302,7 +302,7 @@ class Game:
         self.Food_Pellets=[]
         self.Fruit=[]
         
-        self.game_score=[]
+        self.game_score=[Game_State.STOP, self.user, self.score, self.level]
         
         self.font_path = os.path.join(base_path,'..','resources','font','Minecraft.ttf')
         self.font = pygame.font.Font(self.font_path, 22)
@@ -516,7 +516,6 @@ class Game:
             
         elif self.state == Game_State.GAME_OVER:
             # self.game_()
-            self.game_ended(Game_State.STOP)
             self.game_over()
             time.sleep(0.1)
             # print("Game Over")

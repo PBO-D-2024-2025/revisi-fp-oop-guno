@@ -784,7 +784,7 @@ if __name__ == "__main__":
 
 - ![didalam game](screenshot1.png): [Didalam Game]
 - ![didalam game](screenshot2.jpg): [Didalam Game]
-- **Link Demo Video**: [URL]
+- ![didalam game](demo.mp4): [Didalam Game]
 
 ## 6. Panduan Instalasi dan Menjalankan Game
 
