@@ -496,7 +496,6 @@ class Game:
                     if self.life == 0:
                         self.state = Game_State.GAME_OVER
                         self.game_ended(Game_State.LOSE)
-                        return
                     else:
                         self.game_restart()
                 
@@ -510,7 +509,6 @@ class Game:
                 self.state = Game_State.GAME_OVER
                 self.game_ended(Game_State.WIN)
                 # self.game_over()
-                return
                     
             self.Player.move(keys, self.offset_x, self.offset_y)
             self.Player.draw(self.offset_x, self.offset_y)
@@ -518,7 +516,7 @@ class Game:
             
         elif self.state == Game_State.GAME_OVER:
             # self.game_()
-            self.game_ended(Game_State.WIN)
+            self.game_ended(Game_State.STOP)
             self.game_over()
             time.sleep(0.1)
             # print("Game Over")
