@@ -329,7 +329,6 @@ class Game:
         self.wall_t_bottom = Utility.load_image('wall-t-bottom.gif')
         self.wall_x = Utility.load_image('wall-x.gif')
         
-        
     def set_user(self, user):
         self.user = user
         
@@ -338,7 +337,6 @@ class Game:
 
     def set_state(self, state):
         self.state = state
-        
         
     def initialize_game(self, level_data=None, Player=None):
         self.maze_width=level_data['size'][0]*self.tile_size
