@@ -1,42 +1,86 @@
-import pygame
-
-class AchievementHandler:
-    def __init__(self):
-        self.achievements = {
-            "first_death": False,
-            "first_win": False,
-            "win_superhard": False,
-            "win_hard": False
+{
+  "AchievementManager": {
+    "description": "Handles achievements in the game.",
+    "class": "AchievementManager",
+    "methods": [
+      {
+        "name": "__init__",
+        "description": "Initializes the achievements and their states.",
+        "params": [],
+        "implementation": {
+          "achievements": {
+            "First_Death": false,
+            "First_Win": false,
+            "Win_Superhard": false,
+            "Win_Hard": false
+          }
         }
-        self.unlocked = []  # Track unlocked achievements for notifications
+      },
+      {
+        "name": "unlock_achievement",
+        "description": "Marks an achievement as unlocked.",
+        "params": [
+          { "name": "achievement_key", "type": "string", "description": "The key of the achievement to unlock." }
+        ],
+        "implementation": {
+          "if": "achievement_key in self.achievements",
+          "then": "self.achievements[achievement_key] = true"
+        }
+      },
+      {
+        "name": "is_achievement_unlocked",
+        "description": "Checks if an achievement is unlocked.",
+        "params": [
+          { "name": "achievement_key", "type": "string", "description": "The key of the achievement to check." }
+        ],
+        "implementation": "return self.achievements.get(achievement_key, false)"
+      }
+    ]
+  },
 
-    def unlock_achievement(self, achievement_name):
-        if achievement_name in self.achievements and not self.achievements[achievement_name]:
-            self.achievements[achievement_name] = True
-            self.unlocked.append(achievement_name)
-            print(f"Achievement unlocked: {achievement_name}")
+  "Achievable": {
+    "description": "Base class for objects that can unlock achievements.",
+    "class": "Achievable",
+    "methods": [
+      {
+        "name": "unlock",
+        "description": "Unlock an achievement.",
+        "params": [
+          { "name": "achievement_manager", "type": "AchievementManager", "description": "The achievement manager instance." },
+          { "name": "achievement_key", "type": "string", "description": "The key of the achievement to unlock." }
+        ],
+        "implementation": "achievement_manager.unlock_achievement(achievement_key)"
+      }
+    ]
+  },
 
-    def check_first_death(self, life):
-        if life == 0 and not self.achievements["first_death"]:
-            self.unlock_achievement("first_death")
-
-    def check_first_win(self, game_state):
-        if game_state == Game_State.WIN and not self.achievements["first_win"]:
-            self.unlock_achievement("first_win")
-
-    def check_win_hard(self, difficulty, game_state):
-        if difficulty == "hard" and game_state == Game_State.WIN and not self.achievements["win_hard"]:
-            self.unlock_achievement("win_hard")
-
-    def check_win_superhard(self, difficulty, game_state):
-        if difficulty == "superhard" and game_state == Game_State.WIN and not self.achievements["win_superhard"]:
-            self.unlock_achievement("win_superhard")
-
-    def display_achievements(self, screen):
-        # Display unlocked achievements on the game screen
-        font = pygame.font.Font(None, 36)
-        y_offset = 10
-        for achievement in self.unlocked:
-            text = font.render(f"Unlocked: {achievement}", True, (255, 255, 0))
-            screen.blit(text, (10, y_offset))
-            y_offset += 40
+  "Player": {
+    "description": "Extends Achievable to allow players to unlock achievements.",
+    "class": "Player",
+    "inheritance": "Achievable",
+    "methods": [
+      {
+        "name": "on_death",
+        "description": "Handles logic when the player dies.",
+        "params": [
+          { "name": "achievement_manager", "type": "AchievementManager" }
+        ],
+        "implementation": "self.unlock(achievement_manager, 'First_Death')"
+      },
+      {
+        "name": "on_win",
+        "description": "Handles logic when the player wins.",
+        "params": [
+          { "name": "achievement_manager", "type": "AchievementManager" },
+          { "name": "difficulty", "type": "string", "description": "The difficulty of the win." }
+        ],
+        "implementation": {
+          "if": "difficulty == 'superhard'",
+          "then": "self.unlock(achievement_manager, 'Win_Superhard')",
+          "elif": "difficulty == 'hard'",
+          "then": "self.unlock(achievement_manager, 'Win_Hard')",
+          "else": "self.unlock(achievement_manager, 'First_Win')"
+        }
+      }
+    ]
+  }
