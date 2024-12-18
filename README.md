@@ -35,14 +35,88 @@ referensi repo https://github.com/greyblue9/pacman-python
 
 ### 3.1 Save/Load System
 
-- **Implementasi**:
-- **Konsep OOP**:
-- **Penerapan SOLID**:
+- **Implementasi**: Save Data, Saved to json file
+- **Konsep OOP**: Account class use Save_Database and Load_Database class static_method to save and load data
+- **Penerapan SOLID**: interface segregation
 - **Design Pattern yang Digunakan**:
 - **Code Snippet**:
 
 ```
-[Code snippet here]
+class Save_Database:
+    @staticmethod
+    def save_data(instance):
+        try:
+            with open(instance.DATA_PATH,'w') as f:
+                json.dump(instance.LOCAL_DATA, f, indent=2)
+        except Exception as e:
+            print("Error:",e)
+            print(traceback.format_exc())
+            return False
+
+class Load_Database:
+    @staticmethod
+    def load_data(instance):
+        try:
+            if os.path.exists(instance.DATA_PATH):
+                with open(instance.DATA_PATH, 'r') as f:
+                    instance.LOCAL_DATA = json.load(f)
+            else:
+                instance.LOCAL_DATA = {}
+        except Exception as e:
+            print("Error:",e)
+            print(traceback.format_exc())
+            return False
+
+class Account(Load_Database,Save_Database): # Session Only Account Storage
+    """
+    not an actual account but a Save Data to be precise
+    user_data=[
+        {
+            "username":"admin",
+            "score":0,
+            "level":1,
+            "difficulty":"easy",
+            "current_level_data":{},
+        },
+        {
+            "username":"admin",
+            "score":0,
+            "level":1,
+            "difficulty":"easy",
+            "current_level_data":{},
+        }
+    ]
+    """
+    def __init__(self):
+        self.LOCAL_DATA={}
+        self.DATA_PATH=os.path.join(Dir_Path.get_base_path(),'..','..','data','account.json')
+
+    def update(self,username,score,level,difficulty,data):
+        self.LOCAL_DATA[username]['score']+=score
+        self.LOCAL_DATA[username]['level']=level
+        self.LOCAL_DATA[username]['difficulty']=difficulty
+        self.LOCAL_DATA[username]['current_level_data']=data
+        print(f"Updated {username}")
+
+    def register(self,username,level, difficulty,data):
+        self.LOCAL_DATA[username]={}
+        self.LOCAL_DATA[username]['level']=level
+        self.LOCAL_DATA[username]['score']=0
+        self.LOCAL_DATA[username]['difficulty']=difficulty
+        self.LOCAL_DATA[username]['current_level_data']=data
+        print(f"Registered {username}")
+
+    def load(self,username):
+        return self.LOCAL_DATA.get(username)
+
+    def delete(self, username):
+        if username in self.LOCAL_DATA:
+            self.LOCAL_DATA[username].clear()
+            del self.LOCAL_DATA[username]
+        print(f"Deleting {username}")
+
+    def get_account_data(self):
+        return self.LOCAL_DATA
 ```
 
 ### 3.2 Achievement System
@@ -709,14 +783,14 @@ if __name__ == "__main__":
 ## 5. Screenshot dan Demo
 
 - ![didalam game](screenshot1.png): [Didalam Game]
-- **Screenshot 2**: [Deskripsi]
+- ![didalam game](screenshot2.jpg): [Didalam Game]
 - **Link Demo Video**: [URL]
 
 ## 6. Panduan Instalasi dan Menjalankan Game
 
-1. Installasi Python.
-2.
-3.
+1. Install Python versi 3.10++.
+2. Clone atau download repository ini.
+3. Jalankan file Pacman.bat
 
 ## 7. Kendala dan Solusi
 
