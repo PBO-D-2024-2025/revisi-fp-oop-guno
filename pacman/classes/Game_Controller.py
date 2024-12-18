@@ -25,27 +25,8 @@ import Object
 import Error
 import Progress
 
-# to be moved to support OOP principles
 # smart screen allignment issue
-TILE_SIZE = 20
-TILES_X = 27
-TILES_Y = 27
-SCREEN_WIDTH = TILE_SIZE * TILES_X
-SCREEN_HEIGHT = TILE_SIZE * TILES_Y
 
-pygame.init()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Pac-man")
-current_time=time.time()
-
-def load_image(file_name):
-    return pygame.image.load(os.path.join(base_path,'..','resources','sprite', file_name)).convert_alpha()
-
-def scale_logo(image, new_width):
-        width, height = image.get_size()
-        aspect_ratio = height / width
-        new_height = int(new_width * aspect_ratio)
-        return pygame.transform.scale(image, (new_width, new_height))
 class Game_State(Enum):
     START = auto()
     MENU= auto()
@@ -53,20 +34,32 @@ class Game_State(Enum):
     DELETE_USER= auto()
     GAME_START= auto()
     GAME = auto()
-    GAME_RESTART = auto()
     GAME_OVER = auto()
     WIN = auto()
-    END = auto()
+    LOSE = auto()
+    STOP= auto()
+    GAME_END = auto()
     
+class Utility:
+    @staticmethod
+    def load_image(file_name):
+        return pygame.image.load(os.path.join(base_path,'..','resources','sprite', file_name)).convert_alpha()
+
+    @staticmethod
+    def scale_logo(image, new_width):
+            width, height = image.get_size()
+            aspect_ratio = height / width
+            new_height = int(new_width * aspect_ratio)
+            return pygame.transform.scale(image, (new_width, new_height))
     
-class Start_Menu:
-    def __init__(self, screen):
+class Start_Menu(Utility):
+    def __init__(self, screen, TILES_X=27, TILES_Y=27):
         self.screen = screen
         self.state = Game_State.START
         
         self.font_path = os.path.join(base_path,'..','resources','font','Minecraft.ttf')
 
-        self.logo_image = scale_logo(load_image('logo.gif'), 400)
+        self.logo_image = self.scale_logo(Utility.load_image('logo.gif'), 400)
         self.font = pygame.font.Font(self.font_path, 28)
         self.font1 = pygame.font.Font(self.font_path, 26)
         self.font2 = pygame.font.Font(self.font_path, 22)
@@ -258,10 +251,10 @@ class Start_Menu:
         if event.type == pygame.KEYDOWN:
             if self.state == Game_State.START:
                 self.state = Game_State.MENU
-                time.sleep(0.25)
+                time.sleep(0.1)
                 
             elif self.state == Game_State.MENU:
-                # time.sleep(0.25)
+                time.sleep(0.05)
                 if event.key == pygame.K_UP:
                     self.user_selection = (self.user_selection - 1) % len(self.user_options)
                 elif event.key == pygame.K_DOWN:
@@ -275,17 +268,18 @@ class Start_Menu:
                         self.state = Game_State.NEW_USER
                     else:
                         self.state = Game_State.GAME_START
+                        self.username = self.selection
+                        print(self.username)
                 elif event.key == pygame.K_DELETE:
                     if self.user_options[self.user_selection] != 'Create New User':
                         self.username = self.user_options[self.user_selection]
                         self.state = Game_State.DELETE_USER
-                        print(self.username)
-                        time.sleep(0.25)
+                        time.sleep(0.1)
             elif self.state == Game_State.NEW_USER:
                 self.state = Game_State.NEW_USER
 
 class Game:
-    def __init__(self, screen, user=None, tile_size=TILE_SIZE):
+    def __init__(self, screen, user=None, tile_size=20):
         self.screen = screen
         self.state = Game_State.START
         self.user=user
@@ -308,41 +302,54 @@ class Game:
         self.Food_Pellets=[]
         self.Fruit=[]
         
+        self.game_score=[]
+        
         self.font_path = os.path.join(base_path,'..','resources','font','Minecraft.ttf')
         self.font = pygame.font.Font(self.font_path, 22)
         
-        self.start_image = load_image('start.gif')
-        self.ready_image = load_image('ready.gif')
-        self.game_over_image = load_image('gameover.gif')
-        self.life_image = load_image('life.gif')
+        self.start_image = Utility.load_image('start.gif')
+        self.ready_image = Utility.load_image('ready.gif')
+        self.game_over_image = Utility.load_image('gameover.gif')
+        self.life_image = Utility.load_image('life.gif')
         
-        self.wall_nub = load_image('wall-nub.gif')
-        self.wall_corner_ll = load_image('wall-corner-ll.gif')
-        self.wall_corner_lr = load_image('wall-corner-lr.gif')
-        self.wall_corner_ul = load_image('wall-corner-ul.gif')
-        self.wall_corner_ur = load_image('wall-corner-ur.gif')
-        self.wall_end_b = load_image('wall-end-b.gif')
-        self.wall_end_l = load_image('wall-end-l.gif')
-        self.wall_end_r = load_image('wall-end-r.gif')
-        self.wall_end_t = load_image('wall-end-t.gif')
-        self.wall_straight_horiz = load_image('wall-straight-horiz.gif')
-        self.wall_straight_vert = load_image('wall-straight-vert.gif')
-        self.wall_t_left = load_image('wall-t-left.gif')
-        self.wall_t_right = load_image('wall-t-right.gif')
-        self.wall_t_up = load_image('wall-t-top.gif')
-        self.wall_t_bottom = load_image('wall-t-bottom.gif')
-        self.wall_x = load_image('wall-x.gif')
+        self.wall_nub = Utility.load_image('wall-nub.gif')
+        self.wall_corner_ll = Utility.load_image('wall-corner-ll.gif')
+        self.wall_corner_lr = Utility.load_image('wall-corner-lr.gif')
+        self.wall_corner_ul = Utility.load_image('wall-corner-ul.gif')
+        self.wall_corner_ur = Utility.load_image('wall-corner-ur.gif')
+        self.wall_end_b = Utility.load_image('wall-end-b.gif')
+        self.wall_end_l = Utility.load_image('wall-end-l.gif')
+        self.wall_end_r = Utility.load_image('wall-end-r.gif')
+        self.wall_end_t = Utility.load_image('wall-end-t.gif')
+        self.wall_straight_horiz = Utility.load_image('wall-straight-horiz.gif')
+        self.wall_straight_vert = Utility.load_image('wall-straight-vert.gif')
+        self.wall_t_left = Utility.load_image('wall-t-left.gif')
+        self.wall_t_right = Utility.load_image('wall-t-right.gif')
+        self.wall_t_up = Utility.load_image('wall-t-top.gif')
+        self.wall_t_bottom = Utility.load_image('wall-t-bottom.gif')
+        self.wall_x = Utility.load_image('wall-x.gif')
         
         
-    def initialize_game(self, level_data=None, Player=None, difficulty=None):
+    def set_user(self, user):
+        self.user = user
+        
+    def get_state(self):
+        return self.state
+
+    def set_state(self, state):
+        self.state = state
+        
+        
+    def initialize_game(self, level_data=None, Player=None):
         self.maze_width=level_data['size'][0]*self.tile_size
         self.maze_height=level_data['size'][1]*self.tile_size
         self.maze_layout=level_data['maze']
         self.maze_graph=level_data['graph']
         self.maze_path=level_data['path']
+        difficulty=Level_Manager.Difficulty(level_data['difficulty'])
         
         self.level=level_data['level']
-        self.difficulty=level_data['difficulty'].__members__.keys()
+        self.difficulty=Level_Manager.Difficulty(level_data['difficulty']).name
         
         
         #...................................................
@@ -378,15 +385,6 @@ class Game:
         for vertex in self.maze_path:
             x,y=vertex.split(',')
             self.Food_Pellets.append(Object.Pellet_Food(self.screen, int(y), int(x)))
-            
-    def set_user(self, user):
-        self.user = user
-        
-    def get_state(self):
-        return self.state
-
-    def set_state(self, state):
-        self.state = state
         
     def draw_hud(self):
         # Draw life images in the bottom left corner
@@ -417,10 +415,23 @@ class Game:
 
                 
     def game_begin(self):
-        # self.screen.fill((0, 0, 0))
-        self.update_screen()
+        self.screen.fill((0, 0, 0))
+        for setan in self.Ghost:
+            if isinstance(setan,Entity.Dumb_Ghost):
+                setan.control(0)
+            else:
+                setan.control(0, self.Player)
+                
+        for food in self.Food_Pellets:
+            food.draw()
+                
+        self.draw_maze()
+        self.draw_hud()        
+        self.Player.draw(0,0)
+        
         ready_rect = self.ready_image.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2))
         self.screen.blit(self.ready_image, ready_rect)
+        self.state = Game_State.GAME
         pygame.display.flip()
         time.sleep(2)
     
@@ -429,14 +440,11 @@ class Game:
         for setan in self.Ghost:
             setan.set_pos()
         self.game_begin()
-        
-    def game_over(self):
-        return [self.user, self.score, self.level]
             
-    def reset_game(self):
+    def game_over(self):
         # self.Player=None
-        self.Ghost=[]
-        self.Food_Pellets=[]
+        self.Ghost.clear()
+        self.Food_Pellets.clear()
         self.score=0
         self.life=3
         # self.maze_layout = None
@@ -448,11 +456,16 @@ class Game:
         self.screen.blit(self.game_over_image, (self.screen.get_width() // 2 - self.game_over_image.get_width() // 2, self.screen.get_height() // 2 - self.game_over_image.get_height() // 2))
         pygame.display.flip()
         # time.sleep(2)
+    def game_ended(self, state):
+        self.game_score=[state ,self.user, self.score, self.level]
+        
+    def game_result(self):
+        return self.game_score
 
     def update_offsets(self):
         # Calculate the offsets to center the maze
-        maze_width = len(self.maze_layout[0]) * TILE_SIZE
-        maze_height = len(self.maze_layout) * TILE_SIZE
+        maze_width = len(self.maze_layout[0]) * self.tile_size
+        maze_height = len(self.maze_layout) * self.tile_size
 
         # Calculate the offsets to center the maze on the screen
         self.offset_x = 0#(SCREEN_WIDTH - maze_width) // 2
@@ -460,71 +473,83 @@ class Game:
 
     
     def update_screen(self, keys=None):
+        BLACK = (0, 0, 0)
         keys=pygame.key.get_pressed()
-        # if self.state == Game_State.START:
-        #     BLACK = (0, 0, 0)
-
-        #     current_time=time.time()
-        #     random.seed(current_time)
-        #     self.update_offsets()
-        #     self.screen.fill(BLACK)
-        #     self.draw_maze()
-        #     self.draw_hud()
-        #     for setan in self.Ghost:
-        #         # print("ss")
-        #         if isinstance(setan,Entity.Dumb_Ghost):
-        #             setan.control(current_time)
-        #         else:
-        #             setan.control(current_time, self.Player)
+        current_time=time.time()
+        random.seed(current_time)
+        if self.state ==Game_State.GAME_START:
+            self.game_begin()
+        
+        elif self.state == Game_State.GAME:
+            self.update_offsets()
+            self.screen.fill(BLACK)
+            self.draw_maze()
+            self.draw_hud()
+            for setan in self.Ghost:
+                if isinstance(setan,Entity.Dumb_Ghost):
+                    setan.control(current_time)
+                else:
+                    setan.control(current_time, self.Player)
                 
-        #         if setan.check_collision(self.Player):
-        #             self.life -= 1
-        #             if self.life == 0:
-        #                 self.state = Game_State.GAME_OVER
-        #                 self.game_over()
-        #                 return
-        #             else:
-        #                 self.game_restart()
+                if setan.check_collision(self.Player):
+                    self.life -= 1
+                    if self.life == 0:
+                        self.state = Game_State.GAME_OVER
+                        self.game_ended(Game_State.LOSE)
+                        return
+                    else:
+                        self.game_restart()
                 
-        #     for food in self.Food_Pellets:
-        #         food.draw()
-        #         if food.check_collision(self.Player):
-        #             self.score += food.get_score()
-        #             self.Food_Pellets.remove(food)
+            for food in self.Food_Pellets:
+                food.draw()
+                if food.check_collision(self.Player):
+                    self.score += food.get_score()
+                    self.Food_Pellets.remove(food)
                     
-        #     if not self.Food_Pellets:
-        #         self.state = Game_State.WIN
-        #         self.game_over()
-        #         return
+            if not self.Food_Pellets:
+                self.state = Game_State.GAME_OVER
+                self.game_ended(Game_State.WIN)
+                # self.game_over()
+                return
                     
-        #     self.Player.move(keys, self.offset_x, self.offset_y)
-        #     self.Player.draw(self.offset_x, self.offset_y)
-        #     pygame.display.flip()
-        # elif self.state == Game_State.GAME_OVER:
-        #     self.game_over()
-        #     print("Game Over")
-        #     if keys[pygame.K_RETURN]:
-        #         self.state = Game_State.END
+            self.Player.move(keys, self.offset_x, self.offset_y)
+            self.Player.draw(self.offset_x, self.offset_y)
+            pygame.display.flip()
+            
+        elif self.state == Game_State.GAME_OVER:
+            # self.game_()
+            self.game_ended(Game_State.WIN)
+            self.game_over()
+            time.sleep(0.1)
+            # print("Game Over")
+            if keys[pygame.K_RETURN] or keys[pygame.K_ESCAPE]:
+                print("End")
+                self.running = False
         
     def run(self):
         # self.running = True
         print(self.state)
         while self.running:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) or self.state == Game_State.END:
-                    print("End")
-                    self.state = Game_State.START
-                    self.running = False
-                    return
-                
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE) or self.state == Game_State.GAME_END:
+                    # print("End")
+                    self.state = Game_State.GAME_OVER
+                    # self.running = False
+                    # return self.game_over()
             self.update_screen()
-            
             pygame.time.Clock().tick(30)
+        self.running = True
 
 class Game_Controller:
-    def __init__(self, screen):
+    def __init__(self, screen, tile_size=20, tiles_x=27, tiles_y=27, screen_width=540, screen_height=540):
         self.screen = screen
         self.state=Game_State.START
+        
+        self.tile_size = tile_size
+        self.tiles_x = tiles_x
+        self.tiles_y = tiles_y
+        self.screen_width = screen_width
+        self.screen_height = screen_height
         
         #OPEN CLOSE VIOLATION
         self.start_menu= None
@@ -550,8 +575,8 @@ class Game_Controller:
         self.achievement = achievement
     
     def setup(self):
-        Start_Menu_Manager = Start_Menu(screen)
-        Game_Manager = Game(screen, 'user')
+        Start_Menu_Manager = Start_Menu(self.screen, self.tiles_x, self.tiles_y)
+        Game_Manager = Game(self.screen, 'user', tile_size=self.tile_size)
         Level = Level_Manager.Level()
         Account = Progress.Account()
         Scoreboard = Progress.Scoreboard()
@@ -585,10 +610,6 @@ class Game_Controller:
                 if event.type == pygame.QUIT:
                     self.end()
                     self.running = False
-            # print()
-            # print(self.start_menu.get_user()+" "+str(self.start_menu.get_state()))
-            # print(self.state)
-            # print()
             
             if self.state == Game_State.START:
                 self.start_menu.start_menu(self.scoreboard.get_scoreboard())
@@ -617,14 +638,31 @@ class Game_Controller:
                 self.state = Game_State.MENU
                 self.start_menu.set_state(self.state)
                 
-            # elif self.start_menu.get_state() == Game_State.GAME_START:
-            #     # print('Game Start')
-            #     self.level.generate_level()
-            #     self.game.initialize_game(self.level.get_level_data(), Entity.Player(screen), self.start_menu.get_difficulty())
-            #     self.game.game_begin()
-            #     self.start_menu.set_state(Game_State.START)
-            #     self.game.run()
-            #     self.level.reset_level()
+            elif self.state == Game_State.GAME_START:
+                print('Game Start')
+                self.game.set_state(Game_State.GAME_START)
+                self.game.set_user(self.start_menu.get_user())
+                user_level=self.account.load(self.start_menu.get_user())['current_level_data']
+                self.game.initialize_game(user_level, Entity.Player(self.screen))
+                self.game.run()
+                result=self.game.game_result()
+                print(result)
+                
+                if result[0] == Game_State.WIN:
+                    self.scoreboard.insert_score(result[1], result[2], result[3])
+                    self.level.advance_level(result[3])
+                    new_level_data=self.level.get_level_data()
+                    self.account.update(result[1], result[2],new_level_data['level'],Level_Manager.Difficulty(new_level_data['difficulty']).name, new_level_data)
+                elif result[0] == Game_State.LOSE:
+                    self.scoreboard.insert_score(result[1], result[2], result[3])
+                    self.account.delete(result[1])
+                elif result[0] == Game_State.STOP:
+                    pass
+                
+                self.state=Game_State.START
+                self.start_menu.set_state(self.state)
+                time.sleep(0.2)
+                #     self.level.reset_level()
                 
             # elif self.start_menu.get_state() == Game_State.GAME:
             #     # print(self.start_menu.get_difficulty())
@@ -636,12 +674,9 @@ class Game_Controller:
             pygame.time.Clock().tick(30)
 
 if __name__== '__main__':
-    
-    
-    # Game = Game(screen, 'user')
-    # level_node = Level_Manager.Level()
-    game_controller = Game_Controller(screen)
-    game_controller.setup()
-    game_controller.run()
-    game_controller.end()
-    print("End")
+    # game_controller = Game_Controller(screen)
+    # game_controller.setup()
+    # game_controller.run()
+    # game_controller.end()
+    # print("End")
+    pass

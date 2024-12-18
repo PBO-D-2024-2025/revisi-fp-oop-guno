@@ -58,6 +58,13 @@ class Account(Load_Database,Save_Database): # Session Only Account Storage
     def __init__(self):
         self.LOCAL_DATA={}
         self.DATA_PATH=os.path.join(Dir_Path.get_base_path(),'..','..','data','account.json')
+    
+    def update(self,username,score,level,difficulty,data):
+        self.LOCAL_DATA[username]['score']+=score
+        self.LOCAL_DATA[username]['level']=level
+        self.LOCAL_DATA[username]['difficulty']=difficulty
+        self.LOCAL_DATA[username]['current_level_data']=data
+        print(f"Updated {username}")
         
     def register(self,username,level, difficulty,data):
         self.LOCAL_DATA[username]={}
@@ -103,9 +110,13 @@ class Scoreboard(Load_Database,Save_Database):
         return ranking[:5]
     
     def insert_score(self, username, score, level):
-        self.LOCAL_DATA[username]={}
-        self.LOCAL_DATA[username]['level']=level
-        self.LOCAL_DATA[username]['score']=score
+        if username in self.LOCAL_DATA:
+            self.LOCAL_DATA[username]['score']+=score
+            self.LOCAL_DATA[username]['level']=level
+        else:
+            self.LOCAL_DATA[username]={}
+            self.LOCAL_DATA[username]['level']=level
+            self.LOCAL_DATA[username]['score']=score
     
     def get_scoreboard_data(self):
         return self.local_data

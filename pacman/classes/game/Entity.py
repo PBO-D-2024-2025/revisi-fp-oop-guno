@@ -34,7 +34,7 @@ class Player_State(Enum):
     NEAR_GHOST = auto()
     
 class Player:
-    def __init__(self, screen):
+    def __init__(self, screen, tile_size=20):
         self.anim=None
         self.screen = screen
         self.xpos=0
@@ -220,7 +220,7 @@ class Ghost_State(Enum):
     COOLDOWN = auto()
       
 class Ghost:
-    def __init__(self, screen):
+    def __init__(self, screen, tile_size=20):
         self.screen=screen
         self.cur_x = 0#TILES_X // 2
         self.cur_y = 0#TILES_Y // 2
@@ -385,8 +385,8 @@ class Ghost:
 
 class Dumb_Ghost(Ghost):
     # random wandering
-    def __init__(self, screen):
-        super().__init__(screen)
+    def __init__(self, screen, tile_size=20):
+        super().__init__(screen, tile_size=tile_size)
         self.type="DUMB"
         self.color=(random.randint(100, 255), random.randint(100, 255), 0, random.randint(100, 255))
         
@@ -411,8 +411,8 @@ class Dumb_Ghost(Ghost):
 class Wanderer_Ghost(Ghost):
     # random wandering will chase if player seen(by in the same row or column)
     # 5 second chase or timeout
-    def __init__(self, screen):
-        super().__init__(screen)
+    def __init__(self, screen,tile_size=20):
+        super().__init__(screen,tile_size=tile_size)
         self.type="WANDERER"
         self.color=(0, 255, 0, 255)
         
@@ -465,8 +465,8 @@ class Hunter2_Ghost(Ghost):
     # hunt and ambush the player by going to the player's predicted position
     # 10second chase 4second cooldown
     # go
-    def __init__(self, screen):
-        super().__init__(screen)
+    def __init__(self, screen, tile_size=20):
+        super().__init__(screen,tile_size=tile_size)
         self.type="HUNTER2"
         self.color=(0, 0, 255, 255)
         
@@ -572,8 +572,8 @@ class Hunter1_Ghost(Ghost):
     # bfs for game ballance (depend)
     # hunt the player
     # 7second chase or 2second cooldown
-    def __init__(self, screen):
-        super().__init__(screen)
+    def __init__(self, screen, tile_size=20):
+        super().__init__(screen,tile_size=tile_size)
         self.type="HUNTER1"
         self.state = Ghost_State.HUNT
         self.color=(50, 50, 50)

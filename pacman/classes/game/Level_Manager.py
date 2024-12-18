@@ -213,8 +213,9 @@ class Level:
         self.ghost_lineup = []
         self.difficulty = random.choice(list(Difficulty))
         
-    def advance_level(self):
-        self.level_number += 1
+    def advance_level(self, level):
+        self.level_number = level+1
+        self.difficulty = random.choice(list(Difficulty))
         self.generate_level(self.level_number)
     
     def get_level_data(self):
@@ -227,10 +228,6 @@ class Level:
             'graph':self.level_graph,
             'path':self.level_path_list
             }
-        
-    def load_level(self, data):
-        # self.set_level(level_number)
-        pass
     
     def generate_maze(self,maze_width=25,maze_height=25, grapher=Graph(), maze=Maze_Generator()):
         maze.width = self.level_x_size = maze_width
